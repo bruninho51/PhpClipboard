@@ -9,7 +9,7 @@ namespace PhpClipboard\Contracts;
 
 use PhpClipboard\PhpClipboardEntry;
 
-interface IPhpClipboardTemplate {
+interface IPhpClipboardTemplate{
     public function id() : String;
     public function name() : String;
     public function description() : String;

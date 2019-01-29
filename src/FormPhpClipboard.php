@@ -81,6 +81,13 @@ class FormPhpClipboard implements IFormPhpClipboard
      */
     private $css;
 
+    /**
+     * Recebe o adaptador de interface com o banco de dados.
+     * 
+     * @var IPhpClipboardDBAdapter $dbAdapter
+     */
+    private $dbAdapter;
+
     public function __get($property)
     {
         if ($property === 'id') {
@@ -96,24 +103,27 @@ class FormPhpClipboard implements IFormPhpClipboard
             return $this->method;
         }
 
-        throw new Exception('Propriedade Inexistente!');
+        throw new \Exception('Propriedade Inexistente!');
     }
 
-    public function __construct()
+    public function __construct(IPhpClipboardDBAdapter $adapter)
     {
         $this->in = new \ArrayObject();
         $this->scripts = new \ArrayObject();
         $this->css = new \ArrayObject();
+        $this->dbAdapter = $adapter;
     }
 
     /**
      * Devolve o HTML do formulário
      * 
+     * @var String $template Nome do template. Caso não seja passdo,
+     * o template padrão será usado.
      * @return String
      */
-    public function getHTML() : String
+    public function getHTML(String $templateName = "") : String
     {
-        $template = new PhpClipboardTemplate($this, '/Form.php');
+        $template = new PhpClipboardTemplate($this, '/Form.php', $templateName);
         return $template->processTemplate();
     }
 
@@ -224,11 +234,28 @@ class FormPhpClipboard implements IFormPhpClipboard
     /**
      * Cria uma entrada por composição.
      * 
-     * @var ArrayObject $data Contém os dados do campo.
+     * @var array $data Contém os dados do campo.
      * @return void
      */
-    public function putInput(array $data, IPhpClipboardDBAdapter $adapter) : void
+    public function putInput(array $data) : void
     {
-        $this->in->append(new PhpClipboardEntry($data, $adapter));
+        $this->in->append(new PhpClipboardEntry($this->dbAdapter, $data));
+    }
+    
+    /**
+     * Cria uma entrada personalizada por composição.
+     * 
+     * @var array $data Contém os dados do campo.
+     * @return void
+     */
+    public function putInputComponent(array $data) : void
+    {
+        $namespace = "\\PhpClipboard\\Components\\" . $data['component'];
+        if (class_exists($namespace)) {
+            $input = new PhpClipboardEntry($this->dbAdapter, $data);
+            $this->in->append(new $namespace($input));
+        } else {
+            throw new \Exception('Componente Inexistente!');
+        }
     }
 }

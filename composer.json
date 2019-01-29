@@ -11,7 +11,9 @@
     ],
     "autoload": {
         "psr-4": {
-            "PhpClipboard\\": "src"
+            "PhpClipboard\\": "src",
+            "PhpClipboard\\Components\\": "components",
+            "PhpClipboard\\roles\\": "roles"
         }
     },
     "require": {}

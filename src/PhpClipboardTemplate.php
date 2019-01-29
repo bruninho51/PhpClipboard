@@ -23,14 +23,16 @@ class PhpClipboardTemplate implements IPhpClipboardTemplate{
     /**
      * @var FormPhpClipboard $form
      * @var String $urlClipboardController URL curta do controlador responsável por encaminhar os dados enviados pelo formulário ao método de processamento em MyProcessPhpClipboard.
-     * @var bool $template Recebe o nome do template na pasta templates.
+     * @var String $template Recebe o nome do template na pasta templates. Se nulo, template padrão será usado.
      */
-    public function __construct(FormPhpClipboard $form, String $urlClipboardController, $template = false)
+    public function __construct(FormPhpClipboard $form, String $urlClipboardController, String $template = "")
     {
         $this->form = $form;
         $this->clipboardController = $urlClipboardController;
         if (!$template) {
             $this->template = 'default';
+        } else {
+            $this->template = $template;
         }
     }
     
@@ -117,6 +119,14 @@ class PhpClipboardTemplate implements IPhpClipboardTemplate{
             return $this->form->input($inputIdx);
         }
         return $this->form->allEntries();
+    }
+    
+    public function entriesIterator()
+    { 
+        $entries = $this->entries();
+        $iterator = (new \ArrayObject($entries))->getIterator();
+        
+        return $iterator;
     }
     
     public function processTemplate()

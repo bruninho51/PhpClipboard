@@ -73,13 +73,17 @@ class PhpClipboard{
         $formData = $this->getFormData($formIdx, $this->dbAdapter);
         $in = $this->getFormEntriesData($formIdx, $this->dbAdapter);
 
-        $form = new FormPhpClipboard();
+        $form = new FormPhpClipboard($this->dbAdapter);
         $form->putInfo($formData);
 
         $iterator = (new \ArrayObject($in))->getIterator();
 
         while ($iterator->valid()) {
-            $form->putInput($iterator->current());
+            if (isset($iterator->current()['component'])) {
+                $form->putInputComponent($iterator->current());
+            } else {
+                $form->putInput($iterator->current());
+            }
             $iterator->next();
         }
         return $form;

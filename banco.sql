@@ -1,11 +1,14 @@
 #PARA LIB DE FORMULÁRIOS DO SITE
 CREATE TABLE campos(
-	idCampo INTEGER AUTO_INCREMENT,
+    idCampo INTEGER AUTO_INCREMENT,
     label VARCHAR(50) NOT NULL,
     name VARCHAR(50) NOT NULL,
     tipo VARCHAR(25) NOT NULL,
     opt TEXT,
     descricao TEXT NOT NULL,
+    ordem TINYINT NOT NULL,
+    size TINYINT NOT NULL,
+    component VARCHAR(30),
     PRIMARY KEY(idCampo)
 );
 CREATE TABLE formularioModulo(

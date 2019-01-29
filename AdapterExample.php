@@ -56,8 +56,31 @@ class AdapterExample implements IPhpClipboardDBAdapter
         return $data;
     }
 
-    public function getEntryOpt(int $inputIdx): array {
-        
+    public function getEntryOpt(int $inputIdx): array 
+    {
+        $sql = null;
+
+        $stmt = $this->con->prepare("SELECT opt FROM campos WHERE idCampo = ?");
+        $stmt->bindParam(1, $inputIdx);
+        if ($stmt->execute()) {
+            if ($stmt->rowCount() == 1) {
+                $sql = $stmt->fetch(PDO::FETCH_ASSOC)['opt'];
+            }
+        }
+
+        $data = [];
+        if ($sql != null) {
+            $stmt = $this->con->prepare($sql);
+            if ($stmt->execute()) {
+                if ($stmt->rowCount() > 0) {
+                    while ($reg = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $data[] = $reg;
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 
 }

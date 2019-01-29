@@ -7,4 +7,4 @@ $adapter = new AdapterExample;
 $myClip = new PhpClipboard\PhpClipboard($adapter);
 $form = $myClip->getForm(1);
 
-echo $form->getHTML();
+echo $form->getHTML('default2');

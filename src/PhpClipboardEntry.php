@@ -7,11 +7,12 @@
 namespace PhpClipboard;
 
 use PhpClipboard\Contracts\IPhpClipboardDBAdapter;
+use PhpClipboard\Contracts\IPhpClipboardEntry;
 
 /**
  * Representa uma entrada de dados de formulário.
  */
-class PhpClipboardEntry
+class PhpClipboardEntry implements IPhpClipboardEntry
 {
     /**
      * Chave primária de uma entrada de dados.
@@ -111,6 +112,21 @@ class PhpClipboardEntry
      * @var array $roles
      */
     private $roles;
+
+    /**
+     * Ordem que o campo deve aparecer no formulário.
+     * 
+     * @var int $order
+     */
+    private $order;
+
+    /**
+     * Tamanho do campo no formulário. Pode ser usado como o programador preferir,
+     * de acordo com o template que se está fazendo.
+     * 
+     * @var int $size
+     */
+    private $size;
     
     /**
      * Recebe um adapter que se comunica com o banco de dados e passa 
@@ -122,6 +138,7 @@ class PhpClipboardEntry
 
     public function __construct(IPhpClipboardDBAdapter $adapter, array $campo = [])
     {
+        $this->dbAdapter = $adapter;
         if ($campo) {
             if ($this->checkIfParametersExistAndInject($campo)) {
                 $nonNullPropertiesChecked = $this->verifyNotNullProperties();
@@ -134,7 +151,6 @@ class PhpClipboardEntry
             }
         }
 
-        $this->dbAdapter = $adapter;
         $this->wrap      = array('start' => '', 'end' => '');
         $this->wrapAll   = array('start' => '', 'end' => '');
         $this->wrapInner = array('start' => '', 'end' => '');
@@ -147,7 +163,6 @@ class PhpClipboardEntry
         }
 
         return true;
-
     }
 
     /**
@@ -166,16 +181,32 @@ class PhpClipboardEntry
 
     public function __get($property)
     {
-        $propertyOfClass = get_class_vars('/lib/PhpClipboardEntry');
-
-        $propertyRestrict = array_search($property, $this->getRestrictProperties());
-        $propertyExists = array_search($property, $propertyOfClass);
-
-        if (!$propertyRestrict && $propertyExists) {
-            return $this->$property;
-        } else {
-            throw new PhpClipboardException("4");
+        if ($property === 'idCampo') {
+            return $this->idCampo;
         }
+        if ($property === 'idHTML') {
+            return $this->idHTML;
+        }
+        if ($property === 'label') {
+            return $this->label;
+        }
+        if ($property === 'tipo') {
+            return $this->tipo;
+        }
+        if ($property === 'descricao') {
+            return $this->descricao;
+        }
+        if ($property === 'name') {
+            return $this->name;
+        }
+        if ($property === 'order') {
+            return $this->order;
+        }
+        if ($property === 'size') {
+            return $this->size;
+        }
+
+        throw new \Exception('Propriedade Inexistente!');
     }
 
     /**
@@ -221,7 +252,7 @@ class PhpClipboardEntry
      * 
      * @return bool
      */
-    public function wrapAll(String $wrap)
+    public function wrapAll(String $wrap) : bool
     {
         return $this->wrapInsert($wrap, 'wrapAll');
     }
@@ -234,7 +265,7 @@ class PhpClipboardEntry
      * 
      * @return bool
      */
-    public function wrapInner(String $wrap)
+    public function wrapInner(String $wrap) : bool
     {
         return $this->wrapInsert($wrap, 'wrapInner');
     }
@@ -243,19 +274,21 @@ class PhpClipboardEntry
      * Atribui uma classe HTML à entrada de formulário.
      * 
      * @var String $class Nome da classe
-     * @var array $types Recebe os tipos de campo em que a classe deve ser colocada.
+     * @var array $types Recebe os tipos de campo em que a classe deve ser colocada. Caso não seja passada, todos os tipos de campo receberão a classe.
      * 
      * @return PhpClipboardEntry
      */
-    public function setClass(String $class, array $types) : PhpClipboardEntry
+    public function setClass(String $class, array $types = []) : IPhpClipboardEntry
     {
-        $idx = array_search($this->tipo, $types);
-        if ($idx != -1) {
+        if ($types) {
+           $idx = array_search($this->tipo, $types);
+           if ($idx !== false && $idx != -1) {
+               $this->class[$this->tipo][] = $class;
+           }
+        } else {
             $this->class[$this->tipo][] = $class;
         }
-
         return $this;
-        
     }
 
     /**
@@ -266,7 +299,7 @@ class PhpClipboardEntry
      * 
      * @return PhpClipboardEntry
      */
-    public function addAttr(String $keyAttr, String $valueAttr) : PhpClipboardEntry
+    public function addAttr(String $keyAttr, String $valueAttr) : IPhpClipboardEntry
     {
         $attr = $keyAttr."=\"".$valueAttr."\"";
         $this->attrPerson[] = $attr;
@@ -341,14 +374,13 @@ class PhpClipboardEntry
         
         $opts = $this->dbAdapter->getEntryOpt($this->idCampo);
         if ($opts) {
-            while ($opt = $opts->fetch_assoc()) {
+            foreach ($opts as $opt) {
                 $optString .= <<< HEREDOC
                     {$this->wrapAll['start']}
                         <option value='{$opt['value']}'>{$opt['label'] }</option>
                     {$this->wrapAll['end']}
 HEREDOC;
             }
-            
         } else {
             throw new PhpClipboardException("6");
         }
@@ -358,10 +390,12 @@ HEREDOC;
             $class = implode(' ', $this->class[$this->tipo]);
         }
 
+        $attrPerson = "";
         if (!empty($this->attrPerson)) {
             $attrPerson = implode(' ', $this->attrPerson);
         }
 
+        $js = "";
         if (!empty($this->js)) {
             $js = implode('', $this->js);
         }
@@ -404,16 +438,21 @@ HEREDOC;
      */
     private function verifyNotNullProperties() : bool
     {
-        if (is_null($this->idCampo)) 
+        if (is_null($this->idCampo)) {
             return false;
-        if (is_null($this->label))
+        }
+        if (is_null($this->label)) {
             return false;
-        if (is_null($this->tipo))
+        }
+        if (is_null($this->tipo)) {
             return false;
-        if (is_null($this->descricao))
+        }
+        if (is_null($this->descricao)) {
             return false;
-        if (is_null($this->name))
+        }
+        if (is_null($this->name)) {
             return false;
+        }
         return true;
     }   
     
@@ -426,7 +465,7 @@ HEREDOC;
     private function properties(bool $withPrivate = false)
     {
         $propertiesName = array();
-        $reflector = new \ReflectionClass(new PhpClipboardEntry);
+        $reflector = new \ReflectionClass(new PhpClipboardEntry($this->dbAdapter));
         $properties = $reflector->getProperties();
         foreach ($properties as $property) {
             if ($property->isPrivate() && !$withPrivate) {
@@ -448,7 +487,7 @@ HEREDOC;
      * 
      * @return bool
      */
-    public function checkIfParametersExistAndInject(array $campo) : bool
+    private function checkIfParametersExistAndInject(array $campo) : bool
     {
         $propertyOfClass = $this->properties(true);
         if (in_array("idCampo", $propertyOfClass)) {
@@ -474,6 +513,12 @@ HEREDOC;
         }
         if (in_array("roles", $propertyOfClass)) {
             $this->roles = $campo['roles'];
+        }
+        if (in_array("order", $propertyOfClass)) {
+            $this->order = $campo['ordem'];
+        }
+        if (in_array("size", $propertyOfClass)) {
+            $this->size = $campo['size'];
         }
 
         return true;
