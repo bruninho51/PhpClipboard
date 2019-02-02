@@ -2,7 +2,7 @@
     "name": "bruninho51/php-clipboard",
     "description": "PhpClipboard é uma biblioteca para geração de formulários através de um banco de dados.",
     "type": "library",
-    "license": "GPL",
+    "license": "GPL-3.0",
     "authors": [
         {
             "name": "Bruno Mendes Pimenta",
