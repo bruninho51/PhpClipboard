@@ -8,6 +8,7 @@ namespace PhpClipboard;
 
 use PhpClipboard\Contracts\IPhpClipboardDBAdapter;
 use PhpClipboard\Contracts\IPhpClipboardEntry;
+use PhpClipboard\PhpClipboardEntryOption;
 
 /**
  * Representa uma entrada de dados de formulário.
@@ -40,12 +41,11 @@ class PhpClipboardEntry implements IPhpClipboardEntry
      */
     private $tipo;
     /**
-     * Recebe as opções em formato se um SELECT SQL
-     * caso a entrada seja do tipo select.
+     * Recebe as opções caso a entrada seja do tipo select.
      * 
-     * @var String $opt
+     * @var ArrayObject $options
      */
-    private $opt;
+    private $options;
     /**
      * Recebe uma descrição do que o formulário faz.
      * 
@@ -139,6 +139,17 @@ class PhpClipboardEntry implements IPhpClipboardEntry
     public function __construct(IPhpClipboardDBAdapter $adapter, array $campo = [])
     {
         $this->dbAdapter = $adapter;
+        $this->options = new \ArrayObject;
+        $this->wrap      = array('start' => '', 'end' => '');
+        $this->wrapAll   = array('start' => '', 'end' => '');
+        $this->wrapInner = array('start' => '', 'end' => '');
+        $this->js = array();
+        $this->attrPerson = array();
+        $this->roles = array();
+        foreach ($this->getTypeEntries() as $entry) {
+            $this->class[$entry] = array();
+        }
+     
         if ($campo) {
             if ($this->checkIfParametersExistAndInject($campo)) {
                 $nonNullPropertiesChecked = $this->verifyNotNullProperties();
@@ -150,18 +161,6 @@ class PhpClipboardEntry implements IPhpClipboardEntry
                 throw new PhpClipboardException("3");
             }
         }
-
-        $this->wrap      = array('start' => '', 'end' => '');
-        $this->wrapAll   = array('start' => '', 'end' => '');
-        $this->wrapInner = array('start' => '', 'end' => '');
-        $this->js = array();
-        $this->attrPerson = array();
-        $this->roles = array();
-
-        foreach ($this->getTypeEntries() as $entry) {
-            $this->class[$entry] = array();
-        }
-
         return true;
     }
 
@@ -174,7 +173,7 @@ class PhpClipboardEntry implements IPhpClipboardEntry
      * 
      * @return void
      */
-    public function setRole(String $roleName) : void
+    public function role(String $roleName) : void
     {
         $this->roles[] = $roleName;
     }
@@ -207,6 +206,17 @@ class PhpClipboardEntry implements IPhpClipboardEntry
         }
 
         throw new \Exception('Propriedade Inexistente!');
+    }
+    
+    /**
+     * Adiciona uma opção para a caixa de seleção.
+     * 
+     * @var array $data
+     * @return void
+     */
+    public function putOption(array $data)
+    {
+        $this->options->append(new PhpClipboardEntryOption($data));
     }
 
     /**
@@ -278,7 +288,7 @@ class PhpClipboardEntry implements IPhpClipboardEntry
      * 
      * @return PhpClipboardEntry
      */
-    public function setClass(String $class, array $types = []) : IPhpClipboardEntry
+    public function putClass(String $class, array $types = []) : IPhpClipboardEntry
     {
         if ($types) {
            $idx = array_search($this->tipo, $types);
@@ -299,7 +309,7 @@ class PhpClipboardEntry implements IPhpClipboardEntry
      * 
      * @return PhpClipboardEntry
      */
-    public function addAttr(String $keyAttr, String $valueAttr) : IPhpClipboardEntry
+    public function attr(String $keyAttr, String $valueAttr) : IPhpClipboardEntry
     {
         $attr = $keyAttr."=\"".$valueAttr."\"";
         $this->attrPerson[] = $attr;
@@ -370,19 +380,9 @@ class PhpClipboardEntry implements IPhpClipboardEntry
      */
     private function select() : String
     {
-        $optString = "";
-        
-        $opts = $this->dbAdapter->getEntryOpt($this->idCampo);
-        if ($opts) {
-            foreach ($opts as $opt) {
-                $optString .= <<< HEREDOC
-                    {$this->wrapAll['start']}
-                        <option value='{$opt['value']}'>{$opt['label'] }</option>
-                    {$this->wrapAll['end']}
-HEREDOC;
-            }
-        } else {
-            throw new PhpClipboardException("6");
+        $opts = "";
+        foreach ($this->options as $option) {
+            $opts .= $this->wrapAll['start'] . $option->option() . $this->wrapAll['end'] . PHP_EOL;
         }
         
         $class = "";
@@ -400,7 +400,7 @@ HEREDOC;
             $js = implode('', $this->js);
         }
         
-        $entry = <<< HEREDOC
+        $entry = "
             {$this->wrap['start']}
                 <select name='{$this->name}' id='{$this->idHTML}' class='{$class}' $attrPerson>
                     {$this->wrapInner['start']}
@@ -408,25 +408,35 @@ HEREDOC;
                     {$this->wrapInner['end']}
                 </select>
                 {$js}
-            {$this->wrap['end']}
-HEREDOC;
+            {$this->wrap['end']}";
 
         return $entry;
     }
-
+    
     /**
-     * Impede que determinadas propriedades sejam pegas por fora da classe.
+     * Retorna um ArrayObject com os options.
      * 
-     * @return array
+     * @param int $optIdx Índice do option no ArrayObject.
+     * @return mixed
      */
-    private function getRestrictProperties() : array
+    public function options(int $optIdx = 0)
     {
-        return
-        $restrictProperties = array(
-            "wrap",
-            "wrapAll",
-            "wrapInner"
-        );
+        if ($optIdx > 0) {
+            $option = $this->options->offsetGet($optIdx);
+            return $option;
+        }
+        return $this->options;
+    }
+    
+    /**
+     * Retorna um iterador sobre as opções de um select
+     * 
+     * @return \ArrayIterator
+     */
+    public function optionsIterator() : \ArrayIterator
+    {
+        $iterator = $this->options->getIterator();
+        return $iterator;
     }
 
     /**
@@ -469,12 +479,9 @@ HEREDOC;
         $properties = $reflector->getProperties();
         foreach ($properties as $property) {
             if ($property->isPrivate() && !$withPrivate) {
-                    continue;
-            }
-            
+                continue;
+            }       
             $propertiesName[] = $property->getName();
-                
-                
         }
         return $propertiesName;
     }
@@ -499,8 +506,11 @@ HEREDOC;
         if (in_array("tipo", $propertyOfClass)) { 
             $this->tipo = $campo['tipo'];
         }
-        if (in_array("opt", $propertyOfClass)) {
-            $this->opt = $campo['opt'];
+        if (in_array("options", $propertyOfClass) && $this->tipo = 'select') {
+            $options = $this->dbAdapter->getEntryOpt($this->idCampo);
+            foreach ($options as $opt) {
+                $this->putOption($opt);
+            }
         }
         if (in_array("descricao", $propertyOfClass)) {
             $this->descricao = $campo['descricao'];

@@ -88,6 +88,27 @@ abstract class PhpClipboardComponentEntry implements IPhpClipboardEntry{
     }
     
     /**
+     * Retorna um ArrayObject com os options.
+     * 
+     * @param int $optIdx Índice do option no ArrayObject.
+     * @return mixed
+     */
+    public function options(int $optIdx = 0)
+    {
+        return $this->input->options($optIdx);
+    }
+    
+    /**
+     * Retorna um iterador sobre as opções de um select
+     * 
+     * @return \ArrayIterator
+     */
+    public function optionsIterator() : \ArrayIterator
+    {
+        return $this->input->optionsIterator();
+    }
+    
+    /**
      * Adicionar um envólucro para os options, caso entrada seja 
      * do tipo select.
      * 
@@ -125,7 +146,7 @@ abstract class PhpClipboardComponentEntry implements IPhpClipboardEntry{
      * 
      * @return PhpClipboardEntry
      */
-    public function setClass(String $class, array $types = []) : IPhpClipboardEntry
+    public function putClass(String $class, array $types = []) : IPhpClipboardEntry
     {
         $this->input->setClass($class, $types);
         
@@ -140,7 +161,7 @@ abstract class PhpClipboardComponentEntry implements IPhpClipboardEntry{
      * 
      * @return PhpClipboardEntry
      */
-    public function addAttr(String $keyAttr, String $valueAttr) : IPhpClipboardEntry
+    public function attr(String $keyAttr, String $valueAttr) : IPhpClipboardEntry
     {
         $this->input->addAttr($keyAttr, $valueAttr);
         

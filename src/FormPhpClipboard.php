@@ -239,7 +239,7 @@ class FormPhpClipboard implements IFormPhpClipboard
      */
     public function putInput(array $data) : void
     {
-        $this->in->append(new PhpClipboardEntry($this->dbAdapter, $data));
+        $input = new PhpClipboardEntry($this->dbAdapter, $data); 
     }
     
     /**

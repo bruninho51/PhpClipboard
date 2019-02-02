@@ -83,8 +83,8 @@ class PhpClipboardTemplate implements IPhpClipboardTemplate{
      * 
      * @return String
      */
-    public function clipboardController() : String{
-        return $this->clipboardController;
+    public function clipboardRoute() : String{
+        return $this->clipboardRoute;
     }
     
     /**
@@ -111,7 +111,7 @@ class PhpClipboardTemplate implements IPhpClipboardTemplate{
      * 
      * var int $inputIdx
      * 
-     * @return mixed
+     * @return 
      */
     public function entries(int $inputIdx = 0)
     {
@@ -121,7 +121,12 @@ class PhpClipboardTemplate implements IPhpClipboardTemplate{
         return $this->form->allEntries();
     }
     
-    public function entriesIterator()
+    /**
+     * Retorna um iterador para percorrer os campos.
+     * 
+     * @return ArrayIterator
+     */
+    public function entriesIterator() : \ArrayIterator
     { 
         $entries = $this->entries();
         $iterator = (new \ArrayObject($entries))->getIterator();

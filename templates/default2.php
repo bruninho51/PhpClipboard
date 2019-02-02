@@ -30,34 +30,26 @@
     </head>
     <body>
         <div class="container">
-            <form>
+            <form action="<?= $this->clipboardRoute()?>">
                 
                 <?php $iterator = $this->entriesIterator() ?>
                 <div class="form-group">
                     <?php while ($iterator->valid()) : ?>
                     <div class="row">
                       <div class="col-md-6">
-                          <?php $iterator->current()
-                                  ->setClass('custom-select',['select'])
-                                  ->setClass('form-control')
-                                  ->setClass('mb-3')
-                                  ->show()?>
+                          <?php $iterator->current()->show()?>
                       </div>
                       <div class="col-md-6">
                           <?php $iterator->next()?>
                           <?php if ($iterator->valid()) : ?>
-                          <?php $iterator->current()
-                                  ->setClass('custom-select',['select'])
-                                  ->setClass('form-control')
-                                  ->setClass('mb-3')
-                                  ->show()?>
+                          <?php $iterator->current()->show()?>
                           <?php endif; ?>
                       </div>
                     </div>
                     <?php $iterator->next()?>
                     <?php endwhile;?>
                 </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary">Submeter</button>
             </form>
         </div>
     </body>

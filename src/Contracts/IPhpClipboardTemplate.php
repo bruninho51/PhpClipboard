@@ -15,7 +15,7 @@ interface IPhpClipboardTemplate{
     public function description() : String;
     public function entries(int $inputIdx);
     public function method() : String;
-    public function clipboardController() : String;
+    public function clipboardRoute() : String;
     public function scripts() : String;
     public function CSS() : String;
 }
