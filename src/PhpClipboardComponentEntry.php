@@ -148,7 +148,7 @@ abstract class PhpClipboardComponentEntry implements IPhpClipboardEntry{
      */
     public function putClass(String $class, array $types = []) : IPhpClipboardEntry
     {
-        $this->input->setClass($class, $types);
+        $this->input->putClass($class, $types);
         
         return $this;
     }

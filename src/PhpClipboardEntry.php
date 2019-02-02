@@ -328,7 +328,7 @@ class PhpClipboardEntry implements IPhpClipboardEntry
         switch ($this->tipo) {
 
             case 'select':
-                $entry = $this->select();            
+                $entry = $this->select();      
             break;
 
             default:
@@ -404,7 +404,7 @@ class PhpClipboardEntry implements IPhpClipboardEntry
             {$this->wrap['start']}
                 <select name='{$this->name}' id='{$this->idHTML}' class='{$class}' $attrPerson>
                     {$this->wrapInner['start']}
-                        {$optString}
+                        {$opts}
                     {$this->wrapInner['end']}
                 </select>
                 {$js}
@@ -506,7 +506,7 @@ class PhpClipboardEntry implements IPhpClipboardEntry
         if (in_array("tipo", $propertyOfClass)) { 
             $this->tipo = $campo['tipo'];
         }
-        if (in_array("options", $propertyOfClass) && $this->tipo = 'select') {
+        if (in_array("options", $propertyOfClass) && $this->tipo == 'select') {
             $options = $this->dbAdapter->getEntryOpt($this->idCampo);
             foreach ($options as $opt) {
                 $this->putOption($opt);
