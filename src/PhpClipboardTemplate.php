@@ -16,19 +16,19 @@ use PhpClipboard\Contracts\IPhpClipboardTemplate;
  * ser usada dentro dos templates.
  */
 class PhpClipboardTemplate implements IPhpClipboardTemplate{
-    protected $clipboardController;
+    protected $clipboardRoute;
     protected $form;
     protected $template;
     
     /**
      * @var FormPhpClipboard $form
-     * @var String $urlClipboardController URL curta do controlador responsável por encaminhar os dados enviados pelo formulário ao método de processamento em MyProcessPhpClipboard.
+     * @var String $urlClipboardRoute URL curta do controlador responsável por encaminhar os dados enviados pelo formulário ao método de processamento em MyProcessPhpClipboard.
      * @var String $template Recebe o nome do template na pasta templates. Se nulo, template padrão será usado.
      */
-    public function __construct(FormPhpClipboard $form, String $urlClipboardController, String $template = "")
+    public function __construct(FormPhpClipboard $form, String $urlClipboardRoute, String $template = "")
     {
         $this->form = $form;
-        $this->clipboardController = $urlClipboardController;
+        $this->clipboardRoute = $urlClipboardRoute;
         if (!$template) {
             $this->template = 'default';
         } else {

@@ -123,6 +123,7 @@ class FormPhpClipboard implements IFormPhpClipboard
      */
     public function getHTML(String $templateName = "") : String
     {
+        //A rota personalizada será colocada em um arquivo de configuração posteriormente.
         $template = new PhpClipboardTemplate($this, '/Form.php', $templateName);
         return $template->processTemplate();
     }
