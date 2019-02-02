@@ -19,11 +19,12 @@ CREATE TABLE formularioModulo(
     descricao TEXT
 );
 CREATE TABLE formulario(
-	idFormulario INTEGER AUTO_INCREMENT,
+    idFormulario INTEGER AUTO_INCREMENT,
     titulo VARCHAR(50) NOT NULL,
     descricao TEXT NOT NULL,
     method VARCHAR(50) NOT NULL,
     process VARCHAR(50) NOT NULL,
+    processValidateSuccess VARCHAR(50),
     processValidateFailure VARCHAR(50),
     PRIMARY KEY(idFormulario)
 );
