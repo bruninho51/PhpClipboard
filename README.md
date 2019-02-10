@@ -6,7 +6,7 @@ Primeiro de tudo, é necessário baixar a biblioteca. Você pode usar o Composer
 `composer require bruninho51/php-clipboard @dev`
 
 ## Criando Tabelas
-Em seguida, você deverá criar as tabelas que a biblioteca necessita. Para isto, rode o script **banco.sql**, disponível em vendor/bruninho51/php-clipboard.
+Em seguida, você deverá criar as tabelas que a biblioteca necessita. Para isto, rode o script **database.sql**, disponível em vendor/bruninho51/php-clipboard.
 
 ## Criando o Adaptador
 Para que a biblioteca possa se comunicar com  o banco, é necessário que você crie um adaptador. O adaptador deve respeitar a interface **IphpClipboardAdapter**. Na pasta example, há um exemplo de implementação de adaptador utilizando PDO.
@@ -20,7 +20,7 @@ Veja abaixo um exemplo de como gerar o HTML de um formulário cadastrado:
 <code>$adapter = new AdapterExample;</code><br>
 <code>$myClip = new PhpClipboard\PhpClipboard($adapter);</code><br>
 <code>$form = $myClip->getForm(1);</code><br>
-<code>echo $form->getHTML('Form.php', 'default2')</code>
+<code>echo $form->getHTML('Action.php', 'default')</code>
 
 1. Você deverá instanciar seu adaptador;
 2. Em seguida, deve instanciar o PhpClipboard passando o adaptador no contrutor;
