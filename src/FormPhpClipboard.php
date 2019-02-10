@@ -10,12 +10,22 @@ use PhpClipboard\PhpClipboardEntry;
 use PhpClipboard\PhpClipboardTemplate;
 use PhpClipboard\Contracts\IFormPhpClipboard;
 use PhpClipboard\Contracts\IPhpClipboardDBAdapter;
+use PhpClipboard\Contracts\IPhpClipboardEntry;
 
 /**
  * Classe que representa um formulário
  */
 class FormPhpClipboard implements IFormPhpClipboard
 {
+    
+    /**
+     * Array associativo que deve receber os 
+     * dados enviados via POST pelo usuário.
+     * 
+     * @var array
+     */
+    public $data;
+    
     /**
      * Recebe as entradas de formulário.
      * 
@@ -102,6 +112,15 @@ class FormPhpClipboard implements IFormPhpClipboard
         if ($property === 'method') {
             return $this->method;
         }
+        if ($property === 'processValidateSuccess') {
+            return $this->processValidateSuccess;
+        }
+        if ($property === 'processValidateFailure') {
+            return $this->processValidadeFailure;
+        }
+        if ($property === 'data') {
+            return $this->data;
+        }
 
         throw new \Exception('Propriedade Inexistente!');
     }
@@ -124,12 +143,12 @@ class FormPhpClipboard implements IFormPhpClipboard
     public function getHTML(String $templateName = "") : String
     {
         //A rota personalizada será colocada em um arquivo de configuração posteriormente.
-        $template = new PhpClipboardTemplate($this, '/Form.php', $templateName);
+        $template = new PhpClipboardTemplate($this, 'Form.php', $templateName);
         return $template->processTemplate();
     }
 
     /**
-     * Popula o formulário
+     * Coloca as informações do formulário no objeto.
      * 
      * @var array $data
      * @return void
@@ -156,6 +175,16 @@ class FormPhpClipboard implements IFormPhpClipboard
             $this->processValidateFailure = $data['processValidateFailure'];
         }
     }
+    
+    /**
+     * Coloca os dados enviados pelo usuário na propriedade $data
+     * 
+     * @param array $data
+     */
+    public function putData(array $data) : void
+    {
+        $this->data = $data;
+    }
 
     /**
      * Devolve uma entrada de formulário
@@ -176,6 +205,19 @@ class FormPhpClipboard implements IFormPhpClipboard
     public function allEntries() : \ArrayObject
     {
         return $this->in;
+    }
+    
+    /**
+     * Retorna um iterador para percorrer os campos.
+     * 
+     * @return ArrayIterator
+     */
+    public function entriesIterator() : \ArrayIterator
+    { 
+        $entries = $this->allEntries();
+        $iterator = (new \ArrayObject($entries))->getIterator();
+        
+        return $iterator;
     }
 
     /**
@@ -236,26 +278,31 @@ class FormPhpClipboard implements IFormPhpClipboard
      * Cria uma entrada por composição.
      * 
      * @var array $data Contém os dados do campo.
-     * @return void
+     * @return IPhpClipboardEntry
      */
-    public function putInput(array $data) : void
+    public function &putInput(array $data) : IPhpClipboardEntry
     {
         $input = new PhpClipboardEntry($this->dbAdapter, $data);
         $this->in->append($input);
+        
+        return $input;
     }
     
     /**
      * Cria uma entrada personalizada por composição.
      * 
      * @var array $data Contém os dados do campo.
-     * @return void
+     * @return IPhpClipboardEntry
      */
-    public function putInputComponent(array $data) : void
+    public function &putInputComponent(array $data) : IPhpClipboardEntry
     {
         $namespace = "\\PhpClipboard\\Components\\" . $data['component'];
         if (class_exists($namespace)) {
             $input = new PhpClipboardEntry($this->dbAdapter, $data);
-            $this->in->append(new $namespace($input));
+            $component = new $namespace($input);
+            $this->in->append($component);
+            
+            return $component;
         } else {
             throw new \Exception('Componente Inexistente!');
         }

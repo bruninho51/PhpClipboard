@@ -178,6 +178,29 @@ abstract class PhpClipboardComponentEntry implements IPhpClipboardEntry{
         $this->input->label();
     }
     
+    
+    public function allRoles(): \ArrayObject {
+        return $this->input->allRoles();
+    }
+
+    
+    public function putRole(String $roleName): void {
+        
+        $roleNamespace = "\\PhpClipboard\\Roles\\" . $roleName;
+        if (class_exists($roleNamespace)) {
+            $role = new $roleNamespace();
+        } else {
+            throw new \Exception('Regra Inexistente!');
+        }
+        
+        $this->input->role($role);
+    }
+
+    
+    public function rolesIterator(): \ArrayIterator {
+        return $this->input->rolesIterator();
+    }
+    
     /**
      * Método responsável por processar o componente.
      * 

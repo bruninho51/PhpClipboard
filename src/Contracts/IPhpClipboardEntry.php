@@ -11,5 +11,8 @@ interface IPhpClipboardEntry {
     public function label() : void;
     public function options(int $optIdx = 0);
     public function optionsIterator() : \ArrayIterator;
+    public function putRole(String $roleName) : void;
+    public function allRoles() : \ArrayObject;
+    public function rolesIterator() : \ArrayIterator;
 }
 

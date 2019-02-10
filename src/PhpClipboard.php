@@ -79,11 +79,17 @@ class PhpClipboard{
         $iterator = (new \ArrayObject($in))->getIterator();
 
         while ($iterator->valid()) {
+            $input = null;
             if (isset($iterator->current()['component'])) {
-                $form->putInputComponent($iterator->current());
+                $input = $form->putInputComponent($iterator->current());
             } else {
-                $form->putInput($iterator->current());
+                $input = $form->putInput($iterator->current());
             }
+            
+            foreach ($iterator->current()['roles'] as $role) {
+                $input->putRole($role['name']);
+            }
+            
             $iterator->next();
         }
         return $form;
@@ -97,15 +103,34 @@ class PhpClipboard{
      * 
      * @return void
      */
-    public static function process(array $post) : void 
+    public function process(array $post) : void 
     {
-        $process = "";
-        if (isset($post['process'])) {
-            $process = $post['process'];
-            unset($post['process']);
+        $clipboard = $this->getForm($post['clipId']);
+        unset($post['clipId']);
+        $clipboard->putData($post);
+        
+        $entries = $clipboard->entriesIterator();
+        
+        while ($entries->valid()) {
+            $entry = $entries->current();
+            $roles = $entry->rolesIterator();
+            
+            while ($roles->valid()) {
+                $role = $roles->current();
+                $role->validate($clipboard);
+                
+                if ($role->hasErrors()) {
+                    ProcessPhpClipboard::processClipboard($clipboard->processValidateFailure, $clipboard);
+                    exit;
+                }
+                
+                $roles->next();
+            }
+            
+            $entries->next();
         }
         
-        $data = $post;
-        ProcessPhpClipboard::processClipboard($process, $data);
+        ProcessPhpClipboard::processClipboard($clipboard->processValidateSuccess, $clipboard);
+        exit;
     }   
 }

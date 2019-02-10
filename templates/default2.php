@@ -39,7 +39,8 @@
     </head>
     <body>
         <div class="container">
-            <form action="<?= $this->clipboardRoute()?>">
+            <form action="<?= $this->clipboardRoute()?>" method="<?= $this->method()?>">
+                <input type="hidden" name="clipId" value="<?= $this->id()?>">
                 
                 <?php $iterator = $this->entriesIterator() ?>
                 <div class="form-group">

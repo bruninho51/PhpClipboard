@@ -6,6 +6,9 @@
 */
 namespace PhpClipboard;
 
+use PhpClipboard\MyProcessPhpClipboard;
+use PhpClipboard\Contracts\IFormPhpClipboard;
+
 /**
  * Responsável por encaminhar os dados dos formulários para o método responsável
  * pelo processamento.
@@ -18,19 +21,18 @@ class ProcessPhpClipboard extends MyProcessPhpClipboard
      * que recebe os dados dos formulários.
      * 
      * @var String $process Método da classe MyProcessPhpClipboard que processará os dados.
-     * @var array $dadosForm Dados enviados pelo cliente no formato de array.
+     * @var array $form formulário com os dados enviados pelo usuário.
      */
-    public static function processClipboard(String $process, array $dadosForm) : void
+    public static function processClipboard(String $process, IFormPhpClipboard $form) : void
     {
-        $issetProcessOnClass = !(array_search($process, get_class_methods('\lib\MyProcessPhpClipboard')) === false);
+        $issetProcessOnClass = !(array_search($process, get_class_methods(MyProcessPhpClipboard::class)) === false);
         $noProcessNullOrEmpty = !(empty($process) || is_null($process));
 
         if ($noProcessNullOrEmpty && $issetProcessOnClass) {
 
-            parent::$process($dadosForm);
+            parent::$process($form);
         } else {
             throw new PhpClipboardException("1");
         }
     }
-
 }

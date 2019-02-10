@@ -9,6 +9,7 @@ namespace PhpClipboard;
 use PhpClipboard\Contracts\IPhpClipboardDBAdapter;
 use PhpClipboard\Contracts\IPhpClipboardEntry;
 use PhpClipboard\PhpClipboardEntryOption;
+use PhpClipboard\Contracts\IRolePhpClipboardEntry;
 
 /**
  * Representa uma entrada de dados de formulário.
@@ -109,7 +110,7 @@ class PhpClipboardEntry implements IPhpClipboardEntry
      * Recebe o nome das regras de validação do campo, que são representadas
      * por classes que herdam de RolePhpClipboardEntry.
      * 
-     * @var array $roles
+     * @var ArrayObject $roles
      */
     private $roles;
 
@@ -145,7 +146,7 @@ class PhpClipboardEntry implements IPhpClipboardEntry
         $this->wrapInner = array('start' => '', 'end' => '');
         $this->js = array();
         $this->attrPerson = array();
-        $this->roles = array();
+        $this->roles = new \ArrayObject;
         foreach ($this->getTypeEntries() as $entry) {
             $this->class[$entry] = array();
         }
@@ -173,9 +174,29 @@ class PhpClipboardEntry implements IPhpClipboardEntry
      * 
      * @return void
      */
-    public function role(String $roleName) : void
+    public function role(IRolePhpClipboardEntry $role) : void
     {
-        $this->roles[] = $roleName;
+        $this->roles->append($role);
+    }
+    
+    public function allRoles() : \ArrayObject
+    {
+        return $this->roles;
+    }
+    
+    public function rolesIterator() : \ArrayIterator
+    {
+        return $this->roles->getIterator();
+    }
+    
+    public function putRole(String $roleName): void {
+        
+        $roleNamespace = "\\PhpClipboard\\Roles\\" . $roleName;
+        if (class_exists($roleNamespace)) {
+            $role = new $roleNamespace();
+        }
+        
+        $this->role($role);
     }
 
     public function __get($property)
@@ -520,9 +541,6 @@ class PhpClipboardEntry implements IPhpClipboardEntry
         }
         if (in_array("idHTML", $propertyOfClass)) {
             $this->idHTML = $campo['idHTML'];
-        }
-        if (in_array("roles", $propertyOfClass)) {
-            $this->roles = $campo['roles'];
         }
         if (in_array("order", $propertyOfClass)) {
             $this->order = $campo['ordem'];

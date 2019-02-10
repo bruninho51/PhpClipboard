@@ -6,6 +6,8 @@
 */
 namespace PhpClipboard;
 
+use PhpClipboard\FormPhpClipboard;
+
 /**
  * Classe onde o programador deverá criar os métodos 
  * Que processarão o formulário
@@ -18,9 +20,19 @@ class MyProcessPhpClipboard
      * 
      * @var array $data Recebe os dados enviados pelo formulário
      */
-    function myProcessExample(array $data)
+    function myProcessExample(FormPhpClipboard $form)
     {
 
+    }
+    
+    function naoCadastrarTrabalho(FormPhpClipboard $form)
+    {
+        echo 'não cadastrou';
+    }
+    
+    function cadastrarTrabalho(FormPhpClipboard $form)
+    {
+        echo 'cadastrou, só que não';
     }
 
 }

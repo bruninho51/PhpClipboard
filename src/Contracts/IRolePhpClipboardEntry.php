@@ -7,10 +7,11 @@
 namespace PhpClipboard\Contracts;
 
 use \ArrayObject;
+use PhpClipboard\Contracts\IFormPhpClipboard;
 
 interface IRolePhpClipboardEntry
 {
-    public function validate() : void;
+    public function validate(IFormPhpClipboard $form) : void;
     public function hasErrors() : bool;
     public function getErrors() : ArrayObject;
 }

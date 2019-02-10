@@ -13,7 +13,7 @@
         "psr-4": {
             "PhpClipboard\\": "src",
             "PhpClipboard\\Components\\": "components",
-            "PhpClipboard\\roles\\": "roles"
+            "PhpClipboard\\Roles\\": "roles"
         }
     },
     "require": {}

@@ -7,6 +7,8 @@
 namespace PhpClipboard;
 
 use \ArrayObject;
+use PhpClipboard\Contracts\IRolePhpClipboardEntry;
+use PhpClipboard\Contracts\IFormPhpClipboard;
 
 /**
  * Representa uma regra de validação de um campo de formulário.
@@ -28,12 +30,12 @@ class RolePhpClipboardEntry implements IRolePhpClipboardEntry
      * 
      * @return void
      */
-    public function validate() : void
+    public function validate(IFormPhpClipboard $form) : void
     {
         try {
-            $this->role();
-        } catch (Exception $ex) {
-            $this->errors[] = $ex->getMessage();
+            $this->role($form);
+        } catch (\Exception $ex) {
+            $this->errors->append($ex->getMessage());
         }
     }
 
@@ -44,7 +46,7 @@ class RolePhpClipboardEntry implements IRolePhpClipboardEntry
      */
     public function hasErrors() : bool
     {
-        if ($this->errors) {
+        if ($this->errors->count() > 0) {
             return true;
         }
         return false;
@@ -64,10 +66,12 @@ class RolePhpClipboardEntry implements IRolePhpClipboardEntry
      * Regra de validação do campo de formulário.
      * Em caso de erro, deve emitir uma exceção.
      * 
-     * @return bool
+     * @param array $data dados enviados pelo usuário via POST
+     * 
+     * @return void
      */
-    protected function role() : bool
+    protected function role(IFormPhpClipboard $form) : void
     {
-        return true;
+        
     }
 }
