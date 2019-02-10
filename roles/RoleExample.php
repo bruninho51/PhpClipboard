@@ -4,12 +4,12 @@ namespace PhpClipboard\Roles;
 use PhpClipboard\RolePhpClipboardEntry;
 use PhpClipboard\Contracts\IFormPhpClipboard;
 
-class MyRole extends RolePhpClipboardEntry{
+class RoleExample extends RolePhpClipboardEntry{
     
     public function role(IFormPhpClipboard $form) : void
     {
-        if (true) {
-            throw new \Exception("Erro no campo!");
-        } 
+        if ($form->data['title'] == '') {
+         throw new \Exception('Title is null.');   
+        }
     }
 }

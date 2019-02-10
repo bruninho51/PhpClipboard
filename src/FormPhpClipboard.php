@@ -140,10 +140,9 @@ class FormPhpClipboard implements IFormPhpClipboard
      * o template padrão será usado.
      * @return String
      */
-    public function getHTML(String $templateName = "") : String
+    public function getHTML(String $urlClipboardRoute, String $templateName = "") : String
     {
-        //A rota personalizada será colocada em um arquivo de configuração posteriormente.
-        $template = new PhpClipboardTemplate($this, 'Form.php', $templateName);
+        $template = new PhpClipboardTemplate($this, $urlClipboardRoute, $templateName);
         return $template->processTemplate();
     }
 

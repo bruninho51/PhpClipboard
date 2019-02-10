@@ -8,7 +8,7 @@ class AdapterExample implements IPhpClipboardDBAdapter
 
     public function __construct()
     {
-        $this->con = new PDO("mysql:host=mysql;dbname=workorganize;charset=utf8", "root", "root");
+        $this->con = new PDO("mysql:host=mysql;dbname=phpClipboardExample;charset=utf8", "root", "root");
     }
 
     public function getForm(int $formIdx) : array
@@ -29,7 +29,7 @@ class AdapterExample implements IPhpClipboardDBAdapter
     public function getFormEntries(int $formIdx) : array
     {
         $data = [];
-        $stmt = $this->con->prepare("SELECT * FROM campos C JOIN camposFormulario CF ON CF.idCampo = C.idCampo WHERE CF.idFormulario = ?");
+        $stmt = $this->con->prepare("SELECT * FROM campos C JOIN camposFormulario CF ON CF.idCampo = C.idCampo WHERE CF.idFormulario = ? ORDER BY ordem ASC");
         $stmt->bindParam(1,$formIdx);
         if ($stmt->execute()) {
             if ($stmt->rowCount() > 0) {

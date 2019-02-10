@@ -10,7 +10,7 @@ use PhpClipboard\PhpClipboardEntry;
 
 interface IFormPhpClipboard
 {
-    public function getHTML() : String;
+    public function getHTML(String $urlClipboardRoute, String $templateName = "") : String;
     public function input(int $idx) : PhpClipboardEntry;
     public function allEntries() : \ArrayObject;
     public function entriesIterator() : \ArrayIterator;
